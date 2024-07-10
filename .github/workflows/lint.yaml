@@ -1,12 +1,15 @@
 name: Lint
 on: [pull_request]
 
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
   rust-lint:
     name: Rust Code Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Rust
         uses: oxidecomputer/actions-rs_toolchain@oxide/master
       - name: Cache rust artifacts
@@ -22,12 +25,28 @@ jobs:
         run: cargo fmt
       - name: Run cargo clippy
         run: cargo clippy
+
+  check-dependencies:
+    name: Check Rust Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install toolchain
+        uses: moonrepo/setup-rust@v1
+        with:
+          channel: nightly
+          cache-base: main
+      - name: Install udeps
+        run: cargo install cargo-udeps --locked
+      - name: Run udeps
+        run: cargo +nightly udeps --all-targets
   lint:
     name: TS Code Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
       - name: Install Dependencies
